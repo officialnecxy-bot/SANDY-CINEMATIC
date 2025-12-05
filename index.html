@@ -65,6 +65,7 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
+        /* Default hover for generic cards (Pricing etc) */
         .bento-card:hover {
             border-color: rgba(255, 0, 46, 0.5);
             box-shadow: 0 0 40px rgba(255, 0, 46, 0.15);
@@ -197,20 +198,27 @@
         </div>
     </div>
 
-    <!-- SERVICES MODAL (Updated) -->
+    <!-- SERVICES MODAL (Dynamic Theming) -->
     <div id="service-modal" class="fixed inset-0 z-[150] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-md opacity-0 transition-opacity duration-300">
-        <div class="bento-card w-full max-w-lg p-8 relative transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="service-modal-card">
+        <div class="bento-card w-full max-w-lg p-8 relative transform scale-90 transition-transform duration-300 flex flex-col items-center text-center border transition-colors duration-500" id="service-modal-card">
             <button onclick="closeServiceModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div id="service-icon-container" class="w-20 h-20 rounded-full bg-brand-red/10 flex items-center justify-center mb-6 border border-brand-red/20 shadow-[0_0_30px_rgba(255,0,46,0.2)]"><i id="service-icon" class="text-4xl text-brand-red"></i></div>
+            
+            <div id="service-icon-container" class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 border transition-colors duration-500 shadow-xl">
+                <i id="service-icon" class="text-4xl transition-colors duration-500"></i>
+            </div>
+            
             <h3 id="service-title" class="text-3xl font-heading text-white mb-4">SERVICE TITLE</h3>
-            <div class="h-1 w-12 bg-brand-red mb-6 rounded-full"></div>
+            
+            <!-- Removed the generic red line, will use dynamic border -->
+            <div class="h-1 w-12 bg-white/10 mb-6 rounded-full" id="service-divider"></div>
+            
             <p id="service-desc" class="text-gray-300 text-sm leading-relaxed mb-8">Description goes here...</p>
             
-            <button id="service-cta-btn" class="w-full bg-brand-red text-white font-heading text-xl py-4 rounded-xl hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(255,0,46,0.3)] flex items-center justify-center gap-3 group">
+            <!-- Buttons will get dynamic colors -->
+            <button id="service-cta-btn" class="w-full text-white font-heading text-xl py-4 rounded-xl hover:bg-white hover:text-black transition-all shadow-lg flex items-center justify-center gap-3 group">
                 CHECK MY PROJECTS <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
             </button>
 
-            <!-- NEW CONTACT BUTTON -->
             <button id="service-contact-btn" class="w-full bg-white/5 text-white font-heading text-xl py-4 rounded-xl hover:bg-white hover:text-black transition-all mt-3 border border-white/10 flex items-center justify-center gap-3 group">
                 CONTACT NOW <i class="fa-solid fa-comment-dots group-hover:scale-110 transition-transform"></i>
             </button>
@@ -325,23 +333,30 @@
     <section id="services" class="px-4 max-w-[1600px] mx-auto mb-20">
         <h2 class="text-center text-4xl font-heading mb-12" data-aos="zoom-in">MY <span class="text-brand-red">ARSENAL</span></h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div onclick="openServiceModal('reels')" class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer hover:border-brand-red transition-all group" data-aos="fade-up" data-aos-delay="0">
-                <i class="fa-brands fa-instagram text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform"></i>
+            <!-- REELS CARD -->
+            <div onclick="openServiceModal('reels')" class="bento-card p-8 flex flex-col items-center text-center justify-center cursor-pointer transition-all group hover:!border-[#E1306C] hover:!shadow-[0_0_30px_rgba(225,48,108,0.4)]" data-aos="fade-up" data-aos-delay="0">
+                <i class="fa-brands fa-instagram text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform group-hover:text-[#E1306C]"></i>
                 <h3 class="text-2xl font-heading">REELS</h3>
                 <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Short Form</p>
             </div>
-            <div onclick="openServiceModal('youtube')" class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer hover:border-brand-red transition-all group" data-aos="fade-up" data-aos-delay="100">
-                <i class="fa-brands fa-youtube text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform"></i>
+            
+            <!-- YOUTUBE CARD -->
+            <div onclick="openServiceModal('youtube')" class="bento-card p-8 flex flex-col items-center text-center justify-center cursor-pointer transition-all group hover:!border-[#FF0000] hover:!shadow-[0_0_30px_rgba(255,0,0,0.4)]" data-aos="fade-up" data-aos-delay="100">
+                <i class="fa-brands fa-youtube text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform group-hover:text-[#FF0000]"></i>
                 <h3 class="text-2xl font-heading">YOUTUBE</h3>
                 <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Long Form</p>
             </div>
-            <div onclick="openServiceModal('facebook')" class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer hover:border-brand-red transition-all group" data-aos="fade-up" data-aos-delay="200">
-                <i class="fa-brands fa-facebook text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform"></i>
+            
+            <!-- FACEBOOK CARD -->
+            <div onclick="openServiceModal('facebook')" class="bento-card p-8 flex flex-col items-center text-center justify-center cursor-pointer transition-all group hover:!border-[#1877F2] hover:!shadow-[0_0_30px_rgba(24,119,242,0.4)]" data-aos="fade-up" data-aos-delay="200">
+                <i class="fa-brands fa-facebook text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform group-hover:text-[#1877F2]"></i>
                 <h3 class="text-2xl font-heading">FACEBOOK</h3>
                 <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Video Ads</p>
             </div>
-            <div onclick="openServiceModal('design')" class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer hover:border-brand-red transition-all group" data-aos="fade-up" data-aos-delay="300">
-                <i class="fa-solid fa-image text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform"></i>
+            
+            <!-- DESIGN CARD -->
+            <div onclick="openServiceModal('design')" class="bento-card p-8 flex flex-col items-center text-center justify-center cursor-pointer transition-all group hover:!border-[#A855F7] hover:!shadow-[0_0_30px_rgba(168,85,247,0.4)]" data-aos="fade-up" data-aos-delay="300">
+                <i class="fa-solid fa-image text-4xl text-brand-red mb-6 group-hover:scale-110 transition-transform group-hover:text-[#A855F7]"></i>
                 <h3 class="text-2xl font-heading">DESIGN</h3>
                 <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Thumbnails</p>
             </div>
@@ -561,25 +576,29 @@
                 title: 'REELS & TIKTOK',
                 icon: 'fa-brands fa-instagram',
                 desc: 'Short-form content is the fastest way to grow. I specialize in high-retention editing style that includes dynamic captions, sound design, and visual hooks to stop the scroll. Perfect for Instagram Reels, YouTube Shorts, and TikTok.',
-                category: 'reels'
+                category: 'reels',
+                color: '#E1306C' // Instagram Color
             },
             'youtube': {
                 title: 'YOUTUBE LONG FORM',
                 icon: 'fa-brands fa-youtube',
                 desc: 'Documentary style, vlog, or educational content. I handle the entire post-production process including storytelling, b-roll selection, color grading, and audio mixing to maximize watch time.',
-                category: 'youtube'
+                category: 'youtube',
+                color: '#FF0000' // YouTube Red
             },
             'facebook': {
                 title: 'FACEBOOK ADS',
                 icon: 'fa-brands fa-facebook',
                 desc: 'Direct response video ads designed to convert. I create eye-catching visuals with clear calls-to-action that perform exceptionally well on the Facebook feed.',
-                category: 'facebook'
+                category: 'facebook',
+                color: '#1877F2' // Facebook Blue
             },
             'design': {
                 title: 'THUMBNAILS & GRAPHICS',
                 icon: 'fa-solid fa-image',
                 desc: 'A great video needs a great click. I design high-CTR thumbnails using psychology-based composition, bold typography, and vibrant colors to ensure your video gets the views it deserves.',
-                category: 'thumbnails'
+                category: 'thumbnails',
+                color: '#A855F7' // Design Purple
             }
         };
 
@@ -590,23 +609,49 @@
 
             if(!data) return;
 
+            // --- THEME COLOR APPLICATION ---
+            const themeColor = data.color;
+            
+            // 1. Card Border
+            card.style.borderColor = themeColor;
+            card.style.boxShadow = `0 0 40px ${themeColor}40`; // 40 is hex opacity
+
+            // 2. Icon Container
+            document.getElementById('service-icon-container').style.borderColor = themeColor;
+            document.getElementById('service-icon-container').style.backgroundColor = `${themeColor}20`; // 20 is hex opacity
+            document.getElementById('service-icon').style.color = themeColor;
+
+            // 3. Divider
+            document.getElementById('service-divider').style.backgroundColor = themeColor;
+
+            // 4. Main CTA Button (Check Projects)
+            const ctaBtn = document.getElementById('service-cta-btn');
+            ctaBtn.style.backgroundColor = themeColor;
+            
+            // 5. Contact Button
+            const contactBtn = document.getElementById('service-contact-btn');
+            contactBtn.style.borderColor = themeColor;
+            contactBtn.style.color = themeColor;
+            // Hover effect needs JS since we can't easily inject hover pseudo-class
+            contactBtn.onmouseenter = () => { contactBtn.style.backgroundColor = themeColor; contactBtn.style.color = 'white'; };
+            contactBtn.onmouseleave = () => { contactBtn.style.backgroundColor = 'transparent'; contactBtn.style.color = themeColor; };
+
+
             // Update Content
             document.getElementById('service-title').innerText = data.title;
-            document.getElementById('service-icon').className = data.icon + " text-4xl text-brand-red";
+            document.getElementById('service-icon').className = data.icon + " text-4xl transition-colors duration-500";
             document.getElementById('service-desc').innerText = data.desc;
             
             // Update Button Action
-            const btn = document.getElementById('service-cta-btn');
-            btn.onclick = function() {
-                closeServiceModal(); // Close this modal
+            ctaBtn.onclick = function() {
+                closeServiceModal(); 
                 setTimeout(() => {
-                    openPortfolio(); // Open portfolio
-                    filterProjects(data.category); // Filter by category
+                    openPortfolio(); 
+                    filterProjects(data.category); 
                 }, 300);
             };
 
             // NEW: Contact Button Action
-            const contactBtn = document.getElementById('service-contact-btn');
             contactBtn.onclick = function() {
                 closeServiceModal();
                 document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
