@@ -70,19 +70,16 @@
             transform: translateY(-5px) scale(1.005);
         }
 
-        .selected-plan {
-            border: 2px solid #FF002E;
-            background: linear-gradient(180deg, rgba(255,0,46,0.1) 0%, rgba(10,10,10,0.8) 100%);
-            box-shadow: 0 0 50px rgba(255, 0, 46, 0.2);
-            transform: scale(1.02);
-        }
-
         .text-huge {
             font-family: 'Anton', sans-serif;
             text-transform: uppercase;
             letter-spacing: 1px;
             line-height: 0.9;
         }
+
+        /* HIDE SCROLLBAR FOR STORY SLIDER */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .click-ripple {
             position: absolute;
@@ -122,6 +119,17 @@
         #portfolio-overlay.open {
             transform: translateX(0);
         }
+        
+        /* Error Animation */
+        .input-error {
+            border-color: #FF002E !important;
+            animation: shake 0.3s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
     </style>
 </head>
 <body class="antialiased pb-20">
@@ -148,14 +156,13 @@
         </nav>
     </div>
 
-    <!-- UPDATED MOBILE MENU -->
+    <!-- MOBILE MENU -->
     <div id="mobile-menu" class="fixed inset-0 bg-black z-[40] flex flex-col justify-center items-center gap-2 backdrop-blur-3xl">
         <button onclick="toggleMenu()" class="absolute top-10 right-8 text-4xl text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
         <div onclick="toggleProfile()" class="flex flex-col items-center gap-0 cursor-pointer group hover:scale-105 transition-transform duration-300">
-            <div class="w-32 h-32 relative translate-y-4"> <!-- Pushed Image Down -->
+            <div class="w-32 h-32 relative translate-y-4">
                 <img src="https://i.ibb.co/Wpjz0sFV/20251205-204053.png" alt="Profile" class="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,0,46,0.3)] group-hover:drop-shadow-[0_0_25px_rgba(255,0,46,0.6)] transition-all duration-300">
             </div>
-            <!-- Smaller Text & Negative Margin to Stick -->
             <p class="text-[10px] font-bold tracking-[0.2em] text-gray-400 group-hover:text-brand-red transition-colors uppercase -mt-6">PROFILE</p>
         </div>
         <div class="w-12 h-px bg-white/10 my-1"></div>
@@ -165,6 +172,7 @@
         <a href="#contact" onclick="toggleMenu()" class="text-5xl font-heading text-brand-red transition-colors">Contact</a>
     </div>
 
+    <!-- PROFILE POPUP -->
     <div id="profile-popup" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-xl hidden flex justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="bento-card p-8 w-[90%] max-w-md relative transform scale-90 transition-transform duration-300" id="profile-card">
             <button onclick="toggleProfile()" class="absolute top-4 right-4 text-gray-500 hover:text-white text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
@@ -185,38 +193,49 @@
         </div>
     </div>
 
-    <!-- SERVICES MODAL (NEW) -->
+    <!-- SERVICES MODAL -->
     <div id="service-modal" class="fixed inset-0 z-[150] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-lg p-8 relative transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="service-modal-card">
             <button onclick="closeServiceModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-            
-            <div id="service-icon-container" class="w-20 h-20 rounded-full bg-brand-red/10 flex items-center justify-center mb-6 border border-brand-red/20 shadow-[0_0_30px_rgba(255,0,46,0.2)]">
-                <i id="service-icon" class="text-4xl text-brand-red"></i>
-            </div>
-            
+            <div id="service-icon-container" class="w-20 h-20 rounded-full bg-brand-red/10 flex items-center justify-center mb-6 border border-brand-red/20 shadow-[0_0_30px_rgba(255,0,46,0.2)]"><i id="service-icon" class="text-4xl text-brand-red"></i></div>
             <h3 id="service-title" class="text-3xl font-heading text-white mb-4">SERVICE TITLE</h3>
             <div class="h-1 w-12 bg-brand-red mb-6 rounded-full"></div>
-            
-            <p id="service-desc" class="text-gray-300 text-sm leading-relaxed mb-8">
-                Description goes here...
-            </p>
-
-            <button id="service-cta-btn" class="w-full bg-brand-red text-white font-heading text-xl py-4 rounded-xl hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(255,0,46,0.3)] flex items-center justify-center gap-3 group">
-                CHECK MY PROJECTS <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-            </button>
+            <p id="service-desc" class="text-gray-300 text-sm leading-relaxed mb-8">Description goes here...</p>
+            <button id="service-cta-btn" class="w-full bg-brand-red text-white font-heading text-xl py-4 rounded-xl hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(255,0,46,0.3)] flex items-center justify-center gap-3 group">CHECK MY PROJECTS <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i></button>
         </div>
     </div>
     
-    <!-- MESSAGE SUCCESS MODAL (NEW) -->
+    <!-- MESSAGE SUCCESS MODAL -->
     <div id="success-modal" class="fixed inset-0 z-[300] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-sm p-8 relative transform scale-90 transition-transform duration-300 flex flex-col items-center text-center border-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]" id="success-modal-card">
-            <div class="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6 text-green-500 border border-green-500/30 animate-pulse">
-                <i class="fa-solid fa-check text-4xl"></i>
-            </div>
+            <div class="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6 text-green-500 border border-green-500/30 animate-pulse"><i class="fa-solid fa-check text-4xl"></i></div>
             <h3 class="text-3xl font-heading text-white mb-2 tracking-wide">SENT!</h3>
             <p class="text-gray-400 text-xs mb-8 uppercase tracking-widest">I will get back to you shortly.</p>
-            <button onclick="closeSuccessModal()" class="w-full bg-white text-black font-heading text-xl py-3 rounded-xl hover:bg-green-500 hover:text-white transition-all shadow-lg">
-                AWESOME
+            <button onclick="closeSuccessModal()" class="w-full bg-white text-black font-heading text-xl py-3 rounded-xl hover:bg-green-500 hover:text-white transition-all shadow-lg">AWESOME</button>
+        </div>
+    </div>
+
+    <!-- PLAN DETAIL MODAL (NEW) -->
+    <div id="plan-modal" class="fixed inset-0 z-[250] bg-black/95 hidden flex items-center justify-center p-4 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div class="bento-card w-full max-w-md p-8 relative transform scale-90 transition-transform duration-300 flex flex-col border border-white/10" id="plan-modal-card">
+            <button onclick="closePlanModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <div class="mb-6">
+                <span id="pm-type" class="text-[10px] text-brand-red font-bold uppercase tracking-[0.2em] border border-brand-red/30 px-3 py-1 rounded-full">Monthly</span>
+                <h2 id="pm-title" class="text-4xl font-heading text-white mt-4 leading-none">PLAN NAME</h2>
+                <h3 id="pm-price" class="text-2xl text-gray-400 font-body mt-1">₹000</h3>
+            </div>
+
+            <p id="pm-desc" class="text-gray-300 text-sm leading-relaxed mb-6 border-l-2 border-brand-red pl-4">
+                Description goes here.
+            </p>
+
+            <ul id="pm-features" class="space-y-3 mb-8 text-sm text-gray-400">
+                <!-- Features injected here -->
+            </ul>
+
+            <button id="pm-buy-btn" class="w-full bg-white text-black font-heading text-xl py-4 rounded-xl hover:bg-brand-red hover:text-white transition-all shadow-lg flex items-center justify-center gap-2">
+                BUY NOW <i class="fa-solid fa-cart-shopping"></i>
             </button>
         </div>
     </div>
@@ -372,36 +391,123 @@
         </div>
     </section>
 
+    <!-- UPDATED PRICING SECTION (Story Style) -->
     <section id="pricing" class="px-4 max-w-[1400px] mx-auto mb-20">
-        <div class="text-center mb-12">
+        <div class="text-center mb-8">
             <h2 class="text-5xl font-heading mb-4">CHOOSE YOUR <span class="text-brand-red">WEAPON</span></h2>
             <div class="flex justify-center gap-4 mt-8">
                 <button onclick="switchPrice('monthly')" id="btn-monthly" class="px-8 py-3 rounded-full border border-brand-red bg-brand-red text-white font-bold text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,0,46,0.3)]">Monthly Retainer</button>
                 <button onclick="switchPrice('onetime')" id="btn-onetime" class="px-8 py-3 rounded-full border border-white/20 hover:border-white text-white font-bold text-xs uppercase tracking-widest transition-all">One-Time Project</button>
             </div>
         </div>
-        <div id="pricing-monthly" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)"><h3 class="text-3xl font-heading text-gray-400">STARTER</h3><h2 class="text-5xl lg:text-6xl font-heading mt-4">₹15,000<span class="text-lg text-gray-500 font-sans font-normal">/mo</span></h2><div class="h-px bg-white/10 w-full my-8"></div><ul class="space-y-4 text-gray-300 text-sm font-bold"><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> 10 Reels / Month</li><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Basic Captions</li><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> 48h Delivery</li></ul></div>
-            <div class="bento-card p-10 cursor-pointer selected-plan relative" onclick="selectCard(this)"><div class="absolute top-4 right-4 bg-brand-red text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">Best Value</div><h3 class="text-3xl font-heading text-white">GROWTH</h3><h2 class="text-5xl lg:text-6xl font-heading mt-4">₹30,000<span class="text-lg text-gray-500 font-sans font-normal">/mo</span></h2><div class="h-px bg-brand-red/30 w-full my-8"></div><ul class="space-y-4 text-white text-sm font-bold"><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> 20 Reels / Month</li><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Advanced VFX & Sound</li><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Thumbnails Included</li><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Priority Support</li></ul></div>
-            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)"><h3 class="text-3xl font-heading text-gray-400">AGENCY</h3><h2 class="text-5xl lg:text-6xl font-heading mt-4">₹60,000<span class="text-lg text-gray-500 font-sans font-normal">/mo</span></h2><div class="h-px bg-white/10 w-full my-8"></div><ul class="space-y-4 text-gray-300 text-sm font-bold"><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Daily Reels (30/mo)</li><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Dedicated Editor</li><li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Unlimited Revisions</li></ul></div>
+
+        <!-- HORIZONTAL SCROLL CONTAINER -->
+        <div id="pricing-monthly" class="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar px-4 pb-12">
+            
+            <!-- CARD 1 -->
+            <div onclick="openPlanModal('starter')" class="min-w-[280px] snap-center bento-card p-8 cursor-pointer flex flex-col justify-between hover:scale-105 transition-all border border-white/10 group">
+                <div>
+                    <h3 class="text-3xl font-heading text-gray-400 group-hover:text-white transition-colors">STARTER</h3>
+                    <h2 class="text-5xl font-heading mt-2">₹15k<span class="text-sm text-gray-500 font-sans font-normal">/mo</span></h2>
+                    <div class="h-px bg-white/10 w-full my-6"></div>
+                    <ul class="space-y-3 text-gray-400 text-xs font-bold uppercase tracking-wider">
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> 10 Reels / Month</li>
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> Basic Captions</li>
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> 48h Delivery</li>
+                    </ul>
+                </div>
+                <div class="mt-6 text-center text-[10px] text-brand-red font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">Tap for Details</div>
+            </div>
+
+            <!-- CARD 2 (Highlighted) -->
+            <div onclick="openPlanModal('growth')" class="min-w-[280px] snap-center bento-card p-8 cursor-pointer flex flex-col justify-between hover:scale-105 transition-all border-2 border-brand-red bg-white/5 relative group">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 bg-brand-red text-white text-[9px] font-bold uppercase px-3 py-1 rounded-b-lg tracking-widest">Most Popular</div>
+                <div>
+                    <h3 class="text-3xl font-heading text-white mt-4">GROWTH</h3>
+                    <h2 class="text-5xl font-heading mt-2">₹30k<span class="text-sm text-gray-500 font-sans font-normal">/mo</span></h2>
+                    <div class="h-px bg-brand-red/30 w-full my-6"></div>
+                    <ul class="space-y-3 text-white text-xs font-bold uppercase tracking-wider">
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> 20 Reels / Month</li>
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> Adv. VFX & Sound</li>
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> Thumbnails Included</li>
+                    </ul>
+                </div>
+                <div class="mt-6 text-center text-[10px] text-white font-bold uppercase tracking-[0.2em]">Tap for Details</div>
+            </div>
+
+            <!-- CARD 3 -->
+            <div onclick="openPlanModal('agency')" class="min-w-[280px] snap-center bento-card p-8 cursor-pointer flex flex-col justify-between hover:scale-105 transition-all border border-white/10 group">
+                <div>
+                    <h3 class="text-3xl font-heading text-gray-400 group-hover:text-white transition-colors">AGENCY</h3>
+                    <h2 class="text-5xl font-heading mt-2">₹60k<span class="text-sm text-gray-500 font-sans font-normal">/mo</span></h2>
+                    <div class="h-px bg-white/10 w-full my-6"></div>
+                    <ul class="space-y-3 text-gray-400 text-xs font-bold uppercase tracking-wider">
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> Daily Reels (30)</li>
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> Dedicated Editor</li>
+                        <li><i class="fa-solid fa-check text-brand-red mr-2"></i> Unlimited Revisions</li>
+                    </ul>
+                </div>
+                <div class="mt-6 text-center text-[10px] text-brand-red font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">Tap for Details</div>
+            </div>
         </div>
-        <div id="pricing-onetime" class="grid grid-cols-1 md:grid-cols-3 gap-8 hidden">
-            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)"><h3 class="text-3xl font-heading text-gray-400">SINGLE REEL</h3><h2 class="text-6xl font-heading mt-4">₹1,500</h2><p class="text-gray-500 mt-4 text-sm">Perfect to test the quality.</p></div>
-            <div class="bento-card p-10 cursor-pointer border-brand-red" onclick="selectCard(this)"><h3 class="text-3xl font-heading text-white">YOUTUBE VIDEO</h3><h2 class="text-6xl font-heading mt-4">₹3,500</h2><p class="text-gray-500 mt-4 text-sm">Up to 10 mins editing.</p></div>
-            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)"><h3 class="text-3xl font-heading text-gray-400">DOC/VLOG</h3><h2 class="text-6xl font-heading mt-4">₹5,000</h2><p class="text-gray-500 mt-4 text-sm">Advanced storytelling edit.</p></div>
+
+        <!-- ONETIME SLIDER (Hidden by default) -->
+        <div id="pricing-onetime" class="hidden gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar px-4 pb-12">
+            
+            <div onclick="openPlanModal('single')" class="min-w-[280px] snap-center bento-card p-8 cursor-pointer flex flex-col justify-between hover:scale-105 transition-all border border-white/10 group">
+                <div>
+                    <h3 class="text-3xl font-heading text-gray-400 group-hover:text-white transition-colors">SINGLE REEL</h3>
+                    <h2 class="text-5xl font-heading mt-2">₹1,500</h2>
+                    <div class="h-px bg-white/10 w-full my-6"></div>
+                    <p class="text-gray-400 text-xs">Perfect to test the quality before committing.</p>
+                </div>
+                <div class="mt-6 text-center text-[10px] text-brand-red font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">Tap for Details</div>
+            </div>
+
+            <div onclick="openPlanModal('ytvideo')" class="min-w-[280px] snap-center bento-card p-8 cursor-pointer flex flex-col justify-between hover:scale-105 transition-all border-2 border-brand-red bg-white/5 relative group">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 bg-brand-red text-white text-[9px] font-bold uppercase px-3 py-1 rounded-b-lg tracking-widest">Recommended</div>
+                <div>
+                    <h3 class="text-3xl font-heading text-white mt-4">YT VIDEO</h3>
+                    <h2 class="text-5xl font-heading mt-2">₹3,500</h2>
+                    <div class="h-px bg-brand-red/30 w-full my-6"></div>
+                    <p class="text-gray-300 text-xs">Up to 10 mins high-retention editing.</p>
+                </div>
+                <div class="mt-6 text-center text-[10px] text-white font-bold uppercase tracking-[0.2em]">Tap for Details</div>
+            </div>
+
+            <div onclick="openPlanModal('doc')" class="min-w-[280px] snap-center bento-card p-8 cursor-pointer flex flex-col justify-between hover:scale-105 transition-all border border-white/10 group">
+                <div>
+                    <h3 class="text-3xl font-heading text-gray-400 group-hover:text-white transition-colors">DOC/VLOG</h3>
+                    <h2 class="text-5xl font-heading mt-2">₹5,000</h2>
+                    <div class="h-px bg-white/10 w-full my-6"></div>
+                    <p class="text-gray-400 text-xs">Complex storytelling & documentary style.</p>
+                </div>
+                <div class="mt-6 text-center text-[10px] text-brand-red font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">Tap for Details</div>
+            </div>
+
         </div>
     </section>
 
+    <!-- CONTACT FORM - ADDED ERROR TEXTS -->
     <section id="contact" class="px-4 max-w-4xl mx-auto mb-20">
         <div class="bento-card p-10 md:p-20 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-brand-red/10 rounded-full blur-[80px]"></div>
             <h2 class="text-5xl font-heading text-center mb-10 relative z-10">READY TO <span class="text-brand-red">WORK?</span></h2>
             <form id="contact-form" class="space-y-6 relative z-10">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="text" id="c-name" placeholder="YOUR NAME" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors">
-                    <input type="text" id="c-phone" placeholder="WHATSAPP NO." class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors">
+                    <div>
+                        <input type="text" id="c-name" placeholder="YOUR NAME" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors">
+                        <p id="name-error" class="text-brand-red text-[10px] font-bold mt-1 hidden text-left uppercase tracking-wider pl-2">Name is required</p>
+                    </div>
+                    <div>
+                        <input type="text" id="c-phone" placeholder="WHATSAPP NO." class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors">
+                        <p id="phone-error" class="text-brand-red text-[10px] font-bold mt-1 hidden text-left uppercase tracking-wider pl-2">Valid number required</p>
+                    </div>
                 </div>
-                <textarea id="c-msg" rows="4" placeholder="PROJECT DETAILS..." class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors"></textarea>
+                <div>
+                    <textarea id="c-msg" rows="4" placeholder="PROJECT DETAILS..." class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors"></textarea>
+                    <p id="msg-error" class="text-brand-red text-[10px] font-bold mt-1 hidden text-left uppercase tracking-wider pl-2">Please enter details</p>
+                </div>
                 <button type="submit" class="w-full bg-brand-red font-heading text-2xl py-4 rounded-2xl hover:bg-white hover:text-black transition-all shadow-lg">SEND MESSAGE</button>
             </form>
         </div>
@@ -441,14 +547,26 @@
             document.getElementById('btn-onetime').classList.toggle('bg-brand-red', type === 'onetime');
             document.getElementById('btn-onetime').classList.toggle('border-white/20', type !== 'onetime');
 
-            document.getElementById('pricing-monthly').classList.toggle('hidden', type !== 'monthly');
-            document.getElementById('pricing-onetime').classList.toggle('hidden', type === 'monthly');
+            // Change display to Flex for the active slider
+            const monthlyDiv = document.getElementById('pricing-monthly');
+            const onetimeDiv = document.getElementById('pricing-onetime');
+
+            if(type === 'monthly') {
+                monthlyDiv.classList.remove('hidden');
+                monthlyDiv.classList.add('flex');
+                onetimeDiv.classList.add('hidden');
+                onetimeDiv.classList.remove('flex');
+            } else {
+                onetimeDiv.classList.remove('hidden');
+                onetimeDiv.classList.add('flex');
+                monthlyDiv.classList.add('hidden');
+                monthlyDiv.classList.remove('flex');
+            }
         }
 
-        // 3. CARD SELECTION
+        // 3. CARD SELECTION (Updated to do nothing visually, logic moved to Modal)
         function selectCard(el) {
-            document.querySelectorAll('.bento-card').forEach(c => c.classList.remove('selected-plan'));
-            el.classList.add('selected-plan');
+            // No visual change needed on click as we open modal now
         }
 
         // 4. MOBILE MENU & PROFILE POPUP LOGIC
@@ -569,6 +687,105 @@
             card.classList.remove('scale-100');
             card.classList.add('scale-90');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        // --- 7. PLAN MODAL LOGIC (NEW) ---
+        const planData = {
+            'starter': {
+                title: 'STARTER',
+                price: '₹15,000',
+                type: 'Monthly Retainer',
+                desc: 'Perfect for creators just starting out. We focus on consistent uploads to build your initial audience base.',
+                features: ['10 High-Quality Reels', 'Engaging Captions & Hooks', 'Basic Color Grading', 'Trending Audio Selection', '48h Turnaround Time']
+            },
+            'growth': {
+                title: 'GROWTH',
+                price: '₹30,000',
+                type: 'Monthly Retainer',
+                desc: 'Designed for rapid scaling. Includes advanced visual effects and sound design to maximize retention and viral potential.',
+                features: ['20 Premium Reels', 'Advanced VFX & Transitions', 'Custom Sound Design', 'Thumbnail Design Included', 'Priority Support (WhatsApp)', 'Unlimited Revisions']
+            },
+            'agency': {
+                title: 'AGENCY',
+                price: '₹60,000',
+                type: 'Monthly Retainer',
+                desc: 'Full-stack post-production partner. We act as your internal editing team handling daily content requirements.',
+                features: ['30 Daily Reels', 'Dedicated Editor Assigned', 'Strategy Consultation', 'Raw Footage Guidance', 'YouTube Repurposing', '24h Turnaround Time']
+            },
+            'single': {
+                title: 'SINGLE REEL',
+                price: '₹1,500',
+                type: 'One-Time Project',
+                desc: 'Want to test the quality before committing to a monthly plan? Try a single edit.',
+                features: ['1 Fully Edited Reel', 'Professional Captions', 'Color Correction', '2 Revisions']
+            },
+            'ytvideo': {
+                title: 'YOUTUBE VIDEO',
+                price: '₹3,500',
+                type: 'One-Time Project',
+                desc: 'Long-form editing focused on storytelling and watch time retention.',
+                features: ['Up to 10 Mins Duration', 'Storytelling Edit', 'B-Roll Sourcing', 'Motion Graphics', 'Audio Mixing']
+            },
+            'doc': {
+                title: 'DOC / VLOG',
+                price: '₹5,000',
+                type: 'One-Time Project',
+                desc: 'Cinematic travel vlogs or intense documentary style editing.',
+                features: ['Advanced Storytelling', 'Cinematic Sound Design', 'Map Animations', 'Color Grading', 'Thumbnail Included']
+            }
+        };
+
+        function openPlanModal(planKey) {
+            const modal = document.getElementById('plan-modal');
+            const card = document.getElementById('plan-modal-card');
+            const data = planData[planKey];
+
+            if(!data) return;
+
+            document.getElementById('pm-type').innerText = data.type;
+            document.getElementById('pm-title').innerText = data.title;
+            document.getElementById('pm-price').innerText = data.price;
+            document.getElementById('pm-desc').innerText = data.desc;
+
+            const featList = document.getElementById('pm-features');
+            featList.innerHTML = '';
+            data.features.forEach(f => {
+                featList.innerHTML += `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-red"></i> ${f}</li>`;
+            });
+
+            // Buy Button Action
+            const btn = document.getElementById('pm-buy-btn');
+            btn.onclick = function() {
+                closePlanModal();
+                // Scroll to contact
+                document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+                // Pre-fill message
+                setTimeout(() => {
+                    const msgBox = document.getElementById('c-msg');
+                    msgBox.value = `I am interested in the ${data.title} Plan (${data.price}). Let's discuss.`;
+                    msgBox.focus();
+                }, 800);
+            };
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                modal.classList.remove('opacity-0'); 
+                card.classList.remove('scale-90'); 
+                card.classList.add('scale-100'); 
+            }, 10);
+        }
+
+        function closePlanModal() {
+            const modal = document.getElementById('plan-modal');
+            const card = document.getElementById('plan-modal-card');
+            
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+            }, 300);
         }
 
 
@@ -714,26 +931,75 @@
                 });
             }
 
-            // Messages - Updated Logic
+            // Messages - Updated Logic with INLINE VALIDATION
             document.getElementById("contact-form").addEventListener("submit", e => {
                 e.preventDefault();
+                
+                // Get Elements
+                const nameEl = document.getElementById('c-name');
+                const phoneEl = document.getElementById('c-phone');
+                const msgEl = document.getElementById('c-msg');
+
+                const nameErr = document.getElementById('name-error');
+                const phoneErr = document.getElementById('phone-error');
+                const msgErr = document.getElementById('msg-error');
+
+                // Get Values
+                const nameVal = nameEl.value.trim();
+                const phoneVal = phoneEl.value.trim();
+                const msgVal = msgEl.value.trim();
+
+                let isValid = true;
+
+                // Reset Errors
+                [nameEl, phoneEl, msgEl].forEach(el => {
+                    el.classList.remove('input-error', 'border-brand-red');
+                    el.classList.add('border-white/10'); // Reset to default border
+                });
+                [nameErr, phoneErr, msgErr].forEach(el => el.classList.add('hidden'));
+
+                // 1. Check Name
+                if (!nameVal) {
+                    nameEl.classList.remove('border-white/10');
+                    nameEl.classList.add('input-error');
+                    nameErr.classList.remove('hidden');
+                    isValid = false;
+                }
+                
+                // 2. Check Phone
+                if (!phoneVal || !/^\d+$/.test(phoneVal) || phoneVal.length < 10) {
+                    phoneEl.classList.remove('border-white/10');
+                    phoneEl.classList.add('input-error');
+                    phoneErr.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // 3. Check Message
+                if (!msgVal) {
+                    msgEl.classList.remove('border-white/10');
+                    msgEl.classList.add('input-error');
+                    msgErr.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                if (!isValid) return; // Stop if invalid
+
+                // --- PROCEED IF VALID ---
                 const btn = e.target.querySelector('button[type="submit"]');
                 const originalText = btn.innerText;
                 btn.innerText = "SENDING...";
                 btn.disabled = true;
 
                 db.collection("messages").add({
-                    name: document.getElementById('c-name').value,
-                    phone: document.getElementById('c-phone').value,
-                    msg: document.getElementById('c-msg').value,
+                    name: nameVal,
+                    phone: phoneVal,
+                    msg: msgVal,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
-                    // Reset Form
                     document.getElementById('contact-form').reset();
                     btn.innerText = originalText;
                     btn.disabled = false;
                     
-                    // Show Popup
                     const modal = document.getElementById('success-modal');
                     const card = document.getElementById('success-modal-card');
                     modal.classList.remove('hidden');
