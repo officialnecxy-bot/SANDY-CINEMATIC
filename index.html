@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SANDY CINEMATIC | Premium Editor</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['"Anton"', 'sans-serif'],
+                        body: ['"Manrope"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            red: '#FF002E', /* Sharp Neon Red */
+                            dark: '#030303',
+                        }
+                    },
+                    backgroundImage: {
+                        'noise': "url('https://grainy-gradients.vercel.app/noise.svg')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #030303;
+            color: white;
+            font-family: 'Manrope', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* CINEMATIC NOISE OVERLAY */
+        .bg-noise {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* PREMIUM BENTO CARD */
+        .bento-card {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem; /* Perfect Roundness */
+            position: relative;
+            z-index: 10;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .bento-card:hover {
+            border-color: rgba(255, 0, 46, 0.5);
+            box-shadow: 0 0 40px rgba(255, 0, 46, 0.15);
+            transform: translateY(-5px) scale(1.005);
+        }
+
+        /* SELECTED STATE */
+        .selected-plan {
+            border: 2px solid #FF002E;
+            background: linear-gradient(180deg, rgba(255,0,46,0.1) 0%, rgba(10,10,10,0.8) 100%);
+            box-shadow: 0 0 50px rgba(255, 0, 46, 0.2);
+            transform: scale(1.02);
+        }
+
+        /* TYPOGRAPHY */
+        .text-huge {
+            font-family: 'Anton', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 0.9;
+        }
+
+        /* ANIMATIONS */
+        .click-ripple {
+            position: absolute;
+            width: 10px; height: 10px;
+            background: radial-gradient(circle, rgba(255,0,46,0.8) 0%, rgba(255,0,46,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            animation: ripple 0.6s linear forwards;
+            z-index: 9999;
+        }
+        @keyframes ripple {
+            100% { width: 300px; height: 300px; opacity: 0; }
+        }
+
+        /* MOBILE MENU */
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+            transform: translateY(-100%);
+        }
+        #mobile-menu.open { transform: translateY(0); }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 0px; }
+        
+        #admin-panel { display: none; }
+    </style>
+</head>
+<body class="antialiased pb-20">
+
+    <div class="bg-noise"></div>
+
+    <div class="fixed top-6 left-0 right-0 z-50 px-4 flex justify-center">
+        <nav class="bg-black/80 backdrop-blur-xl border border-white/10 rounded-full px-8 py-3 flex items-center justify-between shadow-2xl w-full max-w-7xl">
+            
+            <a href="#" class="flex flex-col leading-none select-none group">
+                <span class="text-3xl font-heading tracking-wide text-white group-hover:text-brand-red transition-colors duration-300">SANDY</span>
+                <span class="text-[0.6rem] font-bold text-brand-red tracking-[0.38em] uppercase pl-0.5 group-hover:text-white transition-colors duration-300">Cinematic</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-400">
+                <a href="#services" class="hover:text-white hover:text-brand-red transition-colors">Services</a>
+                <a href="#work" class="hover:text-white hover:text-brand-red transition-colors">Work</a>
+                <a href="#pricing" class="hover:text-white hover:text-brand-red transition-colors">Plans</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="#contact" class="hidden md:block bg-brand-red text-white text-xs font-bold px-6 py-3 rounded-full uppercase hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(255,0,46,0.4)]">
+                    Start Now
+                </a>
+                <button onclick="toggleMenu()" class="md:hidden text-2xl text-white"><i class="fa-solid fa-bars-staggered"></i></button>
+            </div>
+        </nav>
+    </div>
+
+    <div id="mobile-menu" class="fixed inset-0 bg-black z-[40] flex flex-col justify-center items-center gap-6 backdrop-blur-3xl">
+        <button onclick="toggleMenu()" class="absolute top-10 right-8 text-4xl text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
+        
+        <div onclick="toggleProfile()" class="flex flex-col items-center gap-3 cursor-pointer group hover:scale-105 transition-transform duration-300">
+            <div class="w-32 h-32 relative">
+                <img src="https://i.ibb.co/Wpjz0sFV/20251205-204053.png" alt="Profile" class="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,0,46,0.3)] group-hover:drop-shadow-[0_0_25px_rgba(255,0,46,0.6)] transition-all duration-300">
+            </div>
+            <p class="text-sm font-bold tracking-[0.2em] text-gray-400 group-hover:text-brand-red transition-colors uppercase">PROFILE</p>
+        </div>
+        
+        <div class="w-12 h-px bg-white/10 my-1"></div>
+
+        <a href="#services" onclick="toggleMenu()" class="text-5xl font-heading hover:text-brand-red transition-colors">Services</a>
+        <a href="#work" onclick="toggleMenu()" class="text-5xl font-heading hover:text-brand-red transition-colors">Portfolio</a>
+        <a href="#pricing" onclick="toggleMenu()" class="text-5xl font-heading hover:text-brand-red transition-colors">Pricing</a>
+        <a href="#contact" onclick="toggleMenu()" class="text-5xl font-heading text-brand-red transition-colors">Contact</a>
+    </div>
+
+    <div id="profile-popup" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-xl hidden flex justify-center items-center opacity-0 transition-opacity duration-300">
+        <div class="bento-card p-8 w-[90%] max-w-md relative transform scale-90 transition-transform duration-300" id="profile-card">
+            <button onclick="toggleProfile()" class="absolute top-4 right-4 text-gray-500 hover:text-white text-2xl transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="text-center">
+                <div class="w-24 h-24 rounded-full mx-auto border-4 border-brand-red p-1 mb-4">
+                    <img src="https://i.ibb.co/Vc3LGGX0/IMG-20251205-191721.png" class="w-full h-full rounded-full object-cover">
+                </div>
+                <h3 class="text-3xl font-heading text-white">CONNECT</h3>
+                <p class="text-brand-red text-xs font-bold uppercase tracking-widest mb-8">Official Social Media</p>
+                
+                <div class="grid gap-3">
+                    <a href="tel:9373130571" class="flex items-center justify-between bg-white/5 hover:bg-brand-red text-white p-4 rounded-xl transition-all group">
+                        <span class="font-bold flex items-center gap-3"><i class="fa-solid fa-phone"></i> Call Now</span>
+                        <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition-all"></i>
+                    </a>
+                    
+                    <a href="https://wa.me/919373130571" target="_blank" class="flex items-center justify-between bg-white/5 hover:bg-[#25D366] text-white p-4 rounded-xl transition-all group">
+                        <span class="font-bold flex items-center gap-3"><i class="fa-brands fa-whatsapp text-xl"></i> WhatsApp</span>
+                        <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition-all"></i>
+                    </a>
+
+                    <a href="https://www.instagram.com/cinematic_sandy_30?igsh=bHJ0eW4xZ2Z5ajBt" target="_blank" class="flex items-center justify-between bg-white/5 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 text-white p-4 rounded-xl transition-all group">
+                        <span class="font-bold flex items-center gap-3"><i class="fa-brands fa-instagram text-xl"></i> Instagram</span>
+                        <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition-all"></i>
+                    </a>
+
+                    <a href="https://www.facebook.com/share/14Kp1zHR44Z/" target="_blank" class="flex items-center justify-between bg-white/5 hover:bg-[#1877F2] text-white p-4 rounded-xl transition-all group">
+                        <span class="font-bold flex items-center gap-3"><i class="fa-brands fa-facebook text-xl"></i> Facebook</span>
+                        <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition-all"></i>
+                    </a>
+
+                    <a href="https://t.me/Editorsandy_30" target="_blank" class="flex items-center justify-between bg-white/5 hover:bg-[#0088cc] text-white p-4 rounded-xl transition-all group">
+                        <span class="font-bold flex items-center gap-3"><i class="fa-brands fa-telegram text-xl"></i> Telegram</span>
+                        <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition-all"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="pt-32 px-4 max-w-[1600px] mx-auto mb-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <div class="lg:col-span-8 bento-card p-10 md:p-20 flex flex-col justify-center min-h-[550px] relative overflow-hidden group">
+                <div class="absolute inset-0 z-0 opacity-40 group-hover:opacity-50 transition-opacity duration-700">
+                    <img id="hero-bg-img" src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover grayscale mix-blend-overlay">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                </div>
+
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 border border-white/20 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full mb-8">
+                        <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+                        <span class="text-xs font-bold uppercase tracking-widest">Open for Subscriptions</span>
+                    </div>
+                    <h1 class="text-7xl md:text-9xl text-huge mb-6 text-white">
+                        VISUAL <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-white">ALCHEMY</span>
+                    </h1>
+                    <p class="text-gray-300 max-w-lg text-lg leading-relaxed mb-10">
+                        I don't just edit videos; I engineer attention. Premium post-production for brands that need to dominate.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#pricing" class="bg-white text-black font-heading text-xl px-10 py-4 rounded-full hover:bg-brand-red hover:text-white transition-all">View Plans</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <div class="bento-card flex-1 relative min-h-[300px] overflow-hidden group">
+                    <img id="profile-img" src="https://i.ibb.co/Vc3LGGX0/IMG-20251205-191721.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0">
+                    <div class="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black to-transparent">
+                        <h2 class="text-4xl font-heading">SWANAND Z.</h2>
+                        <p class="text-brand-red text-xs font-bold uppercase tracking-widest">Head of Post-Production</p>
+                    </div>
+                </div>
+
+                <div class="bento-card p-8 bg-brand-red border-none text-white flex justify-between items-center">
+                    <div>
+                        <h3 class="text-6xl font-heading" id="hero-views">15M+</h3>
+                        <p class="text-sm font-bold opacity-80 uppercase tracking-widest">Views Delivered</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-trend-up text-4xl text-black/30"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="px-4 max-w-[1600px] mx-auto mb-20">
+        <h2 class="text-center text-4xl font-heading mb-12">MY <span class="text-brand-red">ARSENAL</span></h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer">
+                <i class="fa-brands fa-instagram text-4xl text-brand-red mb-6"></i>
+                <h3 class="text-2xl font-heading">REELS</h3>
+                <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Short Form</p>
+            </div>
+            <div class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer">
+                <i class="fa-brands fa-youtube text-4xl text-brand-red mb-6"></i>
+                <h3 class="text-2xl font-heading">YOUTUBE</h3>
+                <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Long Form</p>
+            </div>
+            <div class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer">
+                <i class="fa-brands fa-facebook text-4xl text-brand-red mb-6"></i>
+                <h3 class="text-2xl font-heading">FACEBOOK</h3>
+                <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Video Ads</p>
+            </div>
+            <div class="bento-card p-8 flex flex-col items-center text-center justify-center hover:bg-white/5 cursor-pointer">
+                <i class="fa-solid fa-image text-4xl text-brand-red mb-6"></i>
+                <h3 class="text-2xl font-heading">DESIGN</h3>
+                <p class="text-xs text-gray-500 mt-2 uppercase tracking-wider">Thumbnails</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="px-4 max-w-[1400px] mx-auto mb-20">
+        <div class="text-center mb-12">
+            <h2 class="text-5xl font-heading mb-4">CHOOSE YOUR <span class="text-brand-red">WEAPON</span></h2>
+            <div class="flex justify-center gap-4 mt-8">
+                <button onclick="switchPrice('monthly')" id="btn-monthly" class="px-8 py-3 rounded-full border border-brand-red bg-brand-red text-white font-bold text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,0,46,0.3)]">Monthly Retainer</button>
+                <button onclick="switchPrice('onetime')" id="btn-onetime" class="px-8 py-3 rounded-full border border-white/20 hover:border-white text-white font-bold text-xs uppercase tracking-widest transition-all">One-Time Project</button>
+            </div>
+        </div>
+
+        <div id="pricing-monthly" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)">
+                <h3 class="text-3xl font-heading text-gray-400">STARTER</h3>
+                <h2 class="text-5xl lg:text-6xl font-heading mt-4">₹15,000<span class="text-lg text-gray-500 font-sans font-normal">/mo</span></h2>
+                <div class="h-px bg-white/10 w-full my-8"></div>
+                <ul class="space-y-4 text-gray-300 text-sm font-bold">
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> 10 Reels / Month</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Basic Captions</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> 48h Delivery</li>
+                </ul>
+            </div>
+
+            <div class="bento-card p-10 cursor-pointer selected-plan relative" onclick="selectCard(this)">
+                <div class="absolute top-4 right-4 bg-brand-red text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">Best Value</div>
+                <h3 class="text-3xl font-heading text-white">GROWTH</h3>
+                <h2 class="text-5xl lg:text-6xl font-heading mt-4">₹30,000<span class="text-lg text-gray-500 font-sans font-normal">/mo</span></h2>
+                <div class="h-px bg-brand-red/30 w-full my-8"></div>
+                <ul class="space-y-4 text-white text-sm font-bold">
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> 20 Reels / Month</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Advanced VFX & Sound</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Thumbnails Included</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Priority Support</li>
+                </ul>
+            </div>
+
+            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)">
+                <h3 class="text-3xl font-heading text-gray-400">AGENCY</h3>
+                <h2 class="text-5xl lg:text-6xl font-heading mt-4">₹60,000<span class="text-lg text-gray-500 font-sans font-normal">/mo</span></h2>
+                <div class="h-px bg-white/10 w-full my-8"></div>
+                <ul class="space-y-4 text-gray-300 text-sm font-bold">
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Daily Reels (30/mo)</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Dedicated Editor</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-brand-red"></i> Unlimited Revisions</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="pricing-onetime" class="grid grid-cols-1 md:grid-cols-3 gap-8 hidden">
+            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)">
+                <h3 class="text-3xl font-heading text-gray-400">SINGLE REEL</h3>
+                <h2 class="text-6xl font-heading mt-4">₹1,500</h2>
+                <p class="text-gray-500 mt-4 text-sm">Perfect to test the quality.</p>
+            </div>
+            <div class="bento-card p-10 cursor-pointer border-brand-red" onclick="selectCard(this)">
+                <h3 class="text-3xl font-heading text-white">YOUTUBE VIDEO</h3>
+                <h2 class="text-6xl font-heading mt-4">₹3,500</h2>
+                <p class="text-gray-500 mt-4 text-sm">Up to 10 mins editing.</p>
+            </div>
+            <div class="bento-card p-10 cursor-pointer" onclick="selectCard(this)">
+                <h3 class="text-3xl font-heading text-gray-400">DOC/VLOG</h3>
+                <h2 class="text-6xl font-heading mt-4">₹5,000</h2>
+                <p class="text-gray-500 mt-4 text-sm">Advanced storytelling edit.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="work" class="px-4 max-w-[1600px] mx-auto mb-20">
+        <h2 class="text-4xl font-heading mb-10">LATEST <span class="text-brand-red">DROPS</span></h2>
+        <div id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bento-card h-80 flex items-center justify-center text-gray-500 border-dashed border-2 border-white/10">
+                <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="px-4 max-w-4xl mx-auto mb-20">
+        <div class="bento-card p-10 md:p-20 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-brand-red/10 rounded-full blur-[80px]"></div>
+            
+            <h2 class="text-5xl font-heading text-center mb-10 relative z-10">READY TO <span class="text-brand-red">WORK?</span></h2>
+            
+            <form id="contact-form" class="space-y-6 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" id="c-name" placeholder="YOUR NAME" class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors">
+                    <input type="text" id="c-phone" placeholder="WHATSAPP NO." class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors">
+                </div>
+                <textarea id="c-msg" rows="4" placeholder="PROJECT DETAILS..." class="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-red transition-colors"></textarea>
+                <button type="submit" class="w-full bg-brand-red font-heading text-2xl py-4 rounded-2xl hover:bg-white hover:text-black transition-all shadow-lg">SEND MESSAGE</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="text-center pt-10 pb-20 border-t border-white/5">
+        <h1 class="text-[12vw] font-heading text-white/5 leading-none select-none">SANDY</h1>
+        <button onclick="openAdmin()" class="mt-8 text-gray-700 hover:text-brand-red uppercase text-[10px] tracking-[0.2em]"><i class="fa-solid fa-lock"></i> Admin Access</button>
+    </footer>
+
+    <div id="admin-panel" class="fixed inset-0 bg-black z-[100] p-8 overflow-auto">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-4xl font-heading text-brand-red">ADMIN CONTROL</h2>
+                <button onclick="closeAdmin()" class="bg-white/10 px-6 py-2 rounded-full font-bold hover:bg-white/20">Close</button>
+            </div>
+
+            <div class="bento-card p-8 mb-8 border-l-4 border-blue-500">
+                <h3 class="text-2xl font-heading mb-4">SITE IMAGES</h3>
+                <div class="grid gap-4">
+                    <input type="text" id="admin-hero" placeholder="Hero Background Image URL" class="w-full bg-black p-4 rounded-xl border border-white/20">
+                    <input type="text" id="admin-profile" placeholder="Profile Image URL" class="w-full bg-black p-4 rounded-xl border border-white/20">
+                    <button onclick="updateImages()" class="bg-blue-600 font-bold py-3 rounded-xl hover:bg-blue-500">Save Images</button>
+                </div>
+            </div>
+
+            <div class="bento-card p-8 mb-8">
+                <h3 class="text-2xl font-heading mb-4">ADD PROJECT</h3>
+                <div class="grid gap-4">
+                    <input type="text" id="p-title" placeholder="Title" class="w-full bg-black p-4 rounded-xl border border-white/20">
+                    <input type="text" id="p-img" placeholder="Thumbnail URL" class="w-full bg-black p-4 rounded-xl border border-white/20">
+                    <input type="text" id="p-link" placeholder="Video Link" class="w-full bg-black p-4 rounded-xl border border-white/20">
+                    <button onclick="addProject()" class="bg-brand-red font-bold py-3 rounded-xl hover:bg-white hover:text-black">Add to Grid</button>
+                </div>
+            </div>
+
+            <div class="bento-card p-8">
+                <h3 class="text-2xl font-heading mb-4">INBOX</h3>
+                <div id="admin-msgs" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // 1. RIPPLE EFFECT
+        document.addEventListener('click', e => {
+            let ripple = document.createElement('div');
+            ripple.classList.add('click-ripple');
+            ripple.style.left = e.pageX + 'px';
+            ripple.style.top = e.pageY + 'px';
+            document.body.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // 2. PRICING TOGGLE
+        function switchPrice(type) {
+            document.getElementById('btn-monthly').classList.toggle('bg-brand-red', type === 'monthly');
+            document.getElementById('btn-monthly').classList.toggle('border-white/20', type !== 'monthly');
+            document.getElementById('btn-onetime').classList.toggle('bg-brand-red', type === 'onetime');
+            document.getElementById('btn-onetime').classList.toggle('border-white/20', type !== 'onetime');
+
+            document.getElementById('pricing-monthly').classList.toggle('hidden', type !== 'monthly');
+            document.getElementById('pricing-onetime').classList.toggle('hidden', type === 'monthly');
+        }
+
+        // 3. CARD SELECTION
+        function selectCard(el) {
+            document.querySelectorAll('.bento-card').forEach(c => c.classList.remove('selected-plan'));
+            el.classList.add('selected-plan');
+        }
+
+        // 4. MOBILE MENU & PROFILE POPUP LOGIC
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('open');
+        }
+
+        function toggleProfile() {
+            const popup = document.getElementById('profile-popup');
+            const card = document.getElementById('profile-card');
+            
+            if (popup.classList.contains('hidden')) {
+                // Open Profile
+                popup.classList.remove('hidden');
+                setTimeout(() => {
+                    popup.classList.remove('opacity-0');
+                    card.classList.remove('scale-90');
+                    card.classList.add('scale-100');
+                }, 10);
+                
+                // Close Menu if it's open (for better UX)
+                document.getElementById('mobile-menu').classList.remove('open');
+            } else {
+                // Close Profile
+                popup.classList.add('opacity-0');
+                card.classList.remove('scale-100');
+                card.classList.add('scale-90');
+                setTimeout(() => {
+                    popup.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // --- FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+
+            // Load Settings (Images)
+            db.collection("settings").doc("main").onSnapshot(doc => {
+                if(doc.exists) {
+                    const d = doc.data();
+                    if(d.hero) document.getElementById('hero-bg-img').src = d.hero;
+                    if(d.profile) document.getElementById('profile-img').src = d.profile;
+                    
+                    document.getElementById('admin-hero').value = d.hero || '';
+                    document.getElementById('admin-profile').value = d.profile || '';
+                }
+            });
+
+            // Update Images
+            window.updateImages = () => {
+                db.collection("settings").doc("main").set({
+                    hero: document.getElementById('admin-hero').value,
+                    profile: document.getElementById('admin-profile').value
+                }, { merge: true }).then(() => alert("Images Updated!"));
+            }
+
+            // Load Portfolio
+            db.collection("portfolio").orderBy("timestamp", "desc").onSnapshot(snap => {
+                const grid = document.getElementById("portfolio-grid");
+                grid.innerHTML = "";
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    grid.innerHTML += `
+                        <div class="bento-card h-80 relative overflow-hidden group cursor-pointer hover:-translate-y-2">
+                            <img src="${d.img}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all p-6 text-center">
+                                <h3 class="font-heading text-2xl text-white mb-4">${d.title}</h3>
+                                <a href="${d.link}" target="_blank" class="bg-brand-red px-6 py-2 rounded-full font-bold text-sm uppercase">Watch</a>
+                                <button onclick="delItem('${doc.id}')" class="absolute top-4 right-4 text-red-500 admin-btn hidden bg-white p-2 rounded-full"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            // Messages
+            document.getElementById("contact-form").addEventListener("submit", e => {
+                e.preventDefault();
+                db.collection("messages").add({
+                    name: document.getElementById('c-name').value,
+                    phone: document.getElementById('c-phone').value,
+                    msg: document.getElementById('c-msg').value,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => alert("Sent!"));
+            });
+
+            // Admin Logic
+            window.addProject = () => {
+                db.collection("portfolio").add({
+                    title: document.getElementById('p-title').value,
+                    img: document.getElementById('p-img').value,
+                    link: document.getElementById('p-link').value,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => alert("Added!"));
+            }
+
+            window.delItem = (id) => {
+                if(confirm("Delete?")) db.collection("portfolio").doc(id).delete();
+            }
+
+            db.collection("messages").orderBy("timestamp", "desc").onSnapshot(snap => {
+                const b = document.getElementById('admin-msgs');
+                b.innerHTML = "";
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    b.innerHTML += `<div class="bg-white/5 p-4 rounded mb-2"><p class="font-bold text-brand-red">${m.name}</p><p class="text-xs">${m.msg}</p></div>`
+                });
+            });
+
+        } catch(e) { console.log("Firebase setup needed"); }
+
+        // ADMIN LOGIN
+        window.openAdmin = () => {
+            if(prompt("Pass") === "admin") {
+                document.getElementById('admin-panel').style.display = "block";
+                document.querySelectorAll('.admin-btn').forEach(b => b.classList.remove('hidden'));
+            }
+        }
+        window.closeAdmin = () => document.getElementById('admin-panel').style.display = "none";
+
+    </script>
+</body>
+</html>
